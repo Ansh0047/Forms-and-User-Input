@@ -1,36 +1,19 @@
-import { useState } from "react";
+import { useRef } from "react";
 
+// handling user inputs using the useRef hook 
 export default function Login() {
-  // const [enteredEmail,setEnteredEmail] = useState('');
-  // const [enterdPassword,setEnteredPassword] = useState('');
+  const email = useRef();
+  const password = useRef();
 
-  const [enteredValues, setEnteredValues] = useState({
-    email: "",
-    password: "",
-  });
+  function handleSubmit(event){
+    event.preventDefault();
 
-  function handleSubmit(event) {
-    event.preventDefault(); // to prevent the browsers default submission
-    console.log("Submit button clicked");
-    console.log(enteredValues);
-  }
+    console.log('Submit button clicked');
+    
+    const enteredEmail = email.current.value;
+    const enteredPassword = password.current.value;
 
-  /*
-  instead of these separate handle change we now can use the generic handleChange
-  function handleEmailChange(event) {
-    setEnteredEmail(event.target.value);
-  }
-  function handlePasswordChange(event) {
-    setEnteredPassword(event.target.value);
-  }
-  */
-
-  // to set the values changed by the user by passing the identifier i.e. (email,password)
-  function handleInputChange(identifier, value) {
-    setEnteredValues((prevValues) => ({
-      ...prevValues,
-      [identifier]: value,
-    }));
+    console.log(enteredEmail, enteredPassword);
   }
 
   return (
@@ -44,8 +27,7 @@ export default function Login() {
             id="email"
             type="email"
             name="email"
-            onChange={(event) => handleInputChange("email", event.target.value)}
-            value={enteredValues.email}
+            ref={email}
           />
         </div>
 
@@ -55,10 +37,7 @@ export default function Login() {
             id="password"
             type="password"
             name="password"
-            onChange={(event) =>
-              handleInputChange("password", event.target.value)
-            }
-            value={enteredValues.password}
+            ref={password}
           />
         </div>
       </div>

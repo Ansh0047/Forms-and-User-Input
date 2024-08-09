@@ -1,6 +1,24 @@
 export default function Signup() {
+    function handleSubmit(event){
+        event.preventDefault();
+        console.log('Submit button clicked');
+        
+        // so we get the form data object using this we can get the values of different input fields
+        const fd = new FormData(event.target);
+        // using get will will get the entered email adress
+        // const enteredEmail = fd.get('email');
+
+        const acquisitionChannel = fd.getAll('acquisition');
+        console.log(acquisitionChannel);
+
+        // but will group all the inputs in an object using built in Object class provided by the browser
+        const data = Object.fromEntries(fd.entries());    // this will give us the array 
+        data.acquisition = acquisitionChannel;
+        console.log(data);
+    }
+
     return (
-      <form>
+      <form onSubmit={handleSubmit}>
         <h2>Welcome on board!</h2>
         <p>We just need a little bit of data from you to get you started 🚀</p>
   

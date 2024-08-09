@@ -1,4 +1,6 @@
 import { useState } from "react";
+import Input from "./Input";
+import { hasMinLength, isNotEmpty, isEmail } from "../util/validation.js";
 
 // handling user inputs using the useState
 export default function StateLogin() {
@@ -10,10 +12,40 @@ export default function StateLogin() {
     password: "",
   });
 
+  // to keep track if input loses the focus
+  const [didEdit, setDidEdit] = useState({
+    email: false,
+    password: false,
+  });
+
+  // for validating an email
+  // const emailIsInVaild = didEdit.email && !enteredValues.email.includes("@");
+  // const passwordIsInVaild = didEdit.password && enteredValues.password.trim().length < 6;
+
+  // same above logic but by outsourcing the code
+  const emailIsInVaild =
+    didEdit.email &&
+    !isEmail(enteredValues.email) &&
+    !isNotEmpty(enteredValues.email);
+  
+  const passwordIsInVaild = didEdit.password && !hasMinLength(enteredValues.password, 6);
+
   function handleSubmit(event) {
     event.preventDefault(); // to prevent the browsers default submission
     console.log("Submit button clicked");
     console.log(enteredValues);
+
+    // resetting the form manually
+    setEnteredValues({
+      email: "",
+      password: "",
+    });
+
+    // and to keep the input filled check that these are not blurred
+    setDidEdit({
+      email: false,
+      password: false,
+    });
   }
 
   /*
@@ -32,6 +64,21 @@ export default function StateLogin() {
       ...prevValues,
       [identifier]: value,
     }));
+
+    // resettig the edit state, when there is any keystoke by the user
+    setDidEdit((prevEdit) => ({
+      ...prevEdit,
+      [identifier]: false,
+    }));
+  }
+
+  // to change the state and keep track which field loses focus
+  function handleInputBlur(identifier) {
+    // this will be fired when input  loses its focus
+    setDidEdit((prevValues) => ({
+      ...prevValues,
+      [identifier]: true,
+    }));
   }
 
   return (
@@ -39,18 +86,45 @@ export default function StateLogin() {
       <h2>Login</h2>
 
       <div className="control-row">
-        <div className="control no-margin">
+        <Input
+          label="Email"
+          id="email"
+          type="email"
+          name="email"
+          onBlur={() => handleInputBlur("email")}
+          onChange={(event) => handleInputChange("email", event.target.value)}
+          value={enteredValues.email}
+          error={emailIsInVaild && "Please enter a valid email!"}
+        />
+
+        {/* outsourcing this code to get the reuseable component */}
+        {/* <div className="control no-margin">
           <label htmlFor="email">Email</label>
           <input
             id="email"
             type="email"
             name="email"
+            onBlur={() => handleInputBlur("email")}
             onChange={(event) => handleInputChange("email", event.target.value)}
             value={enteredValues.email}
           />
-        </div>
-
-        <div className="control no-margin">
+          <div className="control-error">
+            {emailIsInVaild && <p>Please enter a valid email adress.</p>}
+          </div>
+        </div> */}
+        <Input
+          label="Password"
+          id="password"
+          type="password"
+          name="password"
+          onChange={(event) =>
+            handleInputChange("password", event.target.value)
+          }
+          onBlur={() => handleInputBlur("password")}
+          value={enteredValues.password}
+          error={passwordIsInVaild && "Please enter a valid password!"}
+        />
+        {/* <div className="control no-margin">
           <label htmlFor="password">Password</label>
           <input
             id="password"
@@ -61,7 +135,7 @@ export default function StateLogin() {
             }
             value={enteredValues.password}
           />
-        </div>
+        </div> */}
       </div>
 
       <p className="form-actions">

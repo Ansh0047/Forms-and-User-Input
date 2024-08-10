@@ -1,12 +1,13 @@
-import { useState } from "react";
 import Input from "./Input";
 import { hasMinLength, isNotEmpty, isEmail } from "../util/validation.js";
+import { useInput } from "../hooks/useInput.js";
 
 // handling user inputs using the useState
 export default function StateLogin() {
   // const [enteredEmail,setEnteredEmail] = useState('');
   // const [enterdPassword,setEnteredPassword] = useState('');
 
+  /*
   const [enteredValues, setEnteredValues] = useState({
     email: "",
     password: "",
@@ -17,35 +18,50 @@ export default function StateLogin() {
     email: false,
     password: false,
   });
+  */
+
+  // outsourced the above hooks to custom hooks and it will return an object which we can destructure it
+  // custom hook for email
+  const {
+    value: emailValue,
+    handleInputChange: handleEmailChange,
+    handleInputBlur: handleEmailBlur,
+    hasError: emailHasError
+  } = useInput("", (value) => isEmail(value) && isNotEmpty(value));
+
+  // custom hook for password
+  const {
+    value: passwordValue,
+    handleInputChange: handlePasswordChange,
+    handleInputBlur: handlePasswordBlur,
+    hasError: passwordHasError,
+  } = useInput("", (value) => hasMinLength(value, 6));
 
   // for validating an email
   // const emailIsInVaild = didEdit.email && !enteredValues.email.includes("@");
   // const passwordIsInVaild = didEdit.password && enteredValues.password.trim().length < 6;
 
+  /*
   // same above logic but by outsourcing the code
   const emailIsInVaild =
     didEdit.email &&
     !isEmail(enteredValues.email) &&
     !isNotEmpty(enteredValues.email);
-  
-  const passwordIsInVaild = didEdit.password && !hasMinLength(enteredValues.password, 6);
+
+  const passwordIsInVaild =
+    didEdit.password && !hasMinLength(enteredValues.password, 6);
+  */
 
   function handleSubmit(event) {
     event.preventDefault(); // to prevent the browsers default submission
     console.log("Submit button clicked");
-    console.log(enteredValues);
 
-    // resetting the form manually
-    setEnteredValues({
-      email: "",
-      password: "",
-    });
+    if(emailHasError || passwordHasError){
+      return;
+    }
+    console.log(emailValue, passwordValue);
 
-    // and to keep the input filled check that these are not blurred
-    setDidEdit({
-      email: false,
-      password: false,
-    });
+    
   }
 
   /*
@@ -58,6 +74,7 @@ export default function StateLogin() {
   }
   */
 
+  /*
   // to set the values changed by the user by passing the identifier i.e. (email,password)
   function handleInputChange(identifier, value) {
     setEnteredValues((prevValues) => ({
@@ -81,6 +98,7 @@ export default function StateLogin() {
     }));
   }
 
+  */
   return (
     <form onSubmit={handleSubmit}>
       <h2>Login</h2>
@@ -91,10 +109,10 @@ export default function StateLogin() {
           id="email"
           type="email"
           name="email"
-          onBlur={() => handleInputBlur("email")}
-          onChange={(event) => handleInputChange("email", event.target.value)}
-          value={enteredValues.email}
-          error={emailIsInVaild && "Please enter a valid email!"}
+          onBlur={handleEmailBlur}
+          onChange={handleEmailChange}
+          value={emailValue}
+          error={emailHasError && "Please enter a valid email!"}
         />
 
         {/* outsourcing this code to get the reuseable component */}
@@ -117,12 +135,10 @@ export default function StateLogin() {
           id="password"
           type="password"
           name="password"
-          onChange={(event) =>
-            handleInputChange("password", event.target.value)
-          }
-          onBlur={() => handleInputBlur("password")}
-          value={enteredValues.password}
-          error={passwordIsInVaild && "Please enter a valid password!"}
+          onChange={handlePasswordChange}
+          onBlur={handlePasswordBlur}
+          value={passwordValue}
+          error={passwordHasError && "Please enter a valid password!"}
         />
         {/* <div className="control no-margin">
           <label htmlFor="password">Password</label>
